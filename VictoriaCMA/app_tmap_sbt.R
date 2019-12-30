@@ -1,4 +1,4 @@
-# -------------------------
+# --------------------------
 # code to get_census data ------------------------
 # https://mountainmath.github.io/cancensus/reference/get_census.html
 # code to select tmap variables ------------------------
