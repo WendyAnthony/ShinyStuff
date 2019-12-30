@@ -19,7 +19,7 @@ colnames(victoria_house_census_data)
 names(victoria_house_census_data) [15] <- "Total_income"
 names(victoria_house_census_data) [16] <- "Occupied_private_dwelling"
 names(victoria_house_census_data) [17] <- "Occupied_single_detached_house"
-names(victoria_house_census_data) [18] <- "Apt_build_greaterThan_5_stories"
+names(victoria_house_census_data) [18] <- "Apt_build_greater_than_5_stories"
 names(victoria_house_census_data) [19] <- "Moveable_dwelling"
 names(victoria_house_census_data) [20] <- "Private_households"
 names(victoria_house_census_data) [21] <- "1_person_household"
