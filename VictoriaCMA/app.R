@@ -2,6 +2,7 @@
 #  used for shiny app  #
 ########################
 ## To update app > Run App in RStudio, then Republish
+## using normalized polygon data == divided by population of each polygon
 
 # ------------------------
 # code to get_census data ------------------------
@@ -57,12 +58,6 @@ names(victoria_house_census_data) [27] <- "Avg_household_size"
 head(victoria_house_census_data)
 names(victoria_house_census_data)
 
-# to compare different polygon data, census data needs to be 'normalized'
-# by dividing by polygon population > number per person in area
-# mean/median income is already normalized
-
-
-
 # spatial transorm & reproject ------------------------
 victoria_house_census_data_sp <- as_Spatial(victoria_house_census_data)
 vic_cens <- spTransform(victoria_house_census_data_sp, CRS("+init=epsg:3005")) # bc albers
@@ -76,25 +71,55 @@ vic_cens2 <- subset(vic_cens, select = c(7, 4, 6, 8, 13, 14, 15, 16, 17, 18, 19,
 names(vic_cens2)                    
 head(vic_cens2)
 summary(vic_cens2)
-                    
+class(vic_cens2)
+vic_cens2@data
+
+## Normalize data to compare between polygons
+# to compare different polygon data, census data needs to be 'normalized'
+# not to use raw count
+# Household data by dividing by polygon # households > number per households in area
+# mean/median income per household is already normalized
+# https://www.esri.com/news/arcuser/0206/files/normalize2.pdf
+
+
+vic_cens2$Occupied_private_dwelling_Percent <- vic_cens2$Occupied_private_dwelling / vic_cens2$Households
+vic_cens2$Occupied_single_detached_house_Percent <- vic_cens2$Occupied_single_detached_house / vic_cens2$Households
+vic_cens2$Apt_build_greaterThan_5_stories_Percent <- vic_cens2$Apt_build_greaterThan_5_stories / vic_cens2$Households
+vic_cens2$Moveable_dwellings_Percent <- vic_cens2$Moveable_dwelling / vic_cens2$Households
+vic_cens2$Private_households_Percent <- vic_cens2$Private_households / vic_cens2$Households
+vic_cens2$One_person_household_Percent <- vic_cens2$One_person_household / vic_cens2$Households
+vic_cens2$Two_persons_household_Percent <- vic_cens2$Two_persons_household / vic_cens2$Households
+vic_cens2$Three_persons_household_Percent <- vic_cens2$Three_persons_household / vic_cens2$Households
+vic_cens2$Four_person_household_Percent <- vic_cens2$Four_person_household / vic_cens2$Households
+vic_cens2$Five_or_more_persons_household_Percent <- vic_cens2$Five_or_more_persons_household / vic_cens2$Households
+vic_cens2$Household_size_number_persons_Percent <- vic_cens2$Household_size_number_persons / vic_cens2$Households
+vic_cens2$Avg_household_size_Percent <- vic_cens2$Avg_household_size / vic_cens2$Households
+names(vic_cens2)
+
+# names listed on drop-down list
+vic_cens2 <- subset(vic_cens2, select = c(1, 2, 3, 4, 5, 6, 19, 20, 21, 22, 24, 25, 26, 27, 28, 29))
+names(vic_cens2)
+
 # set a variable for column names ------------------------
 # this seems to be including all columns - use y value to list columns to get omitted
-vic_cens2_var <- setdiff(names(vic_cens2), c("Shape.Area", "Type","GeoUID",  "PR_UID", "CD_UID", "CMA_UID", "name", "Dwellings"))
+vic_cens3_var <- setdiff(names(vic_cens2), c("Shape.Area", "Type","GeoUID",  "PR_UID", "CD_UID", "CMA_UID", "name", "Dwellings", "Occupied_private_dwelling", "Occupied_single_detached_house", "Apt_build_greaterThan_5_stories", "Moveable_dwelling", "Private_households", "One_person_household", "Two_persons_household", "Three_persons_household", "Four_person_household", "Five_or_more_persons_household", "Household_size_number_persons", "Avg_household_size", "Private_households_Percent"))
+class(vic_cens3_var)
+summary(vic_cens3_var)
 
-summary(vic_cens2_var)
 # User interface ----------------------------------
 ui <- fluidPage(
   titlePanel("Victoria CMA 2016 Census Household Visualization"),
   # don't use sidebarLayout 
   # https://stackoverflow.com/questions/46372664/error-argument-mainpanel-is-missing-with-no-default
   sidebarPanel(position = "right",
-    selectInput("var", "Choose a Variable to Map", vic_cens2_var, selected = "Total_income")
+    selectInput("var", "Choose a Variable to Map", vic_cens3_var, selected = "Total_income")
   ),
   mainPanel(
     tabsetPanel(
                 tabPanel("Choropleth map", tmapOutput("map")),
                 tabPanel("Summary", verbatimTextOutput("summary")),
-                tabPanel("Table", tableOutput("table"))
+                tabPanel("Table", tableOutput("table")),
+                tabPanel("About", tableOutput("text"))
     )
   )
 )
@@ -108,7 +133,7 @@ server <- function(input, output, session) {
     # choropleth map variable
     tm_shape(vic_cens2) + 
       tm_scale_bar(width = 0.22, position = c("LEFT", "BOTTOM")) + 
-      tm_polygons(vic_cens2_var[1], alpha = 0.5, palette = "viridis", zindex = 401)
+      tm_polygons(vic_cens3_var[1], alpha = 0.5, palette = "viridis", zindex = 401)
   })
   observe({
     var <- input$var
@@ -125,6 +150,11 @@ server <- function(input, output, session) {
   })
   output$table <- renderTable({
     vic_cens2@data
+  })
+  output$text <- renderText({
+    "2016 Census Data from Statistics Canada. 
+    In order to compare municipal polygon data, household stats have been normalized by dividing each municipality variable by the number of households in each municipality.
+    Created by Wendy Anthony 2020-01-02"
   })
 }
 
