@@ -2,7 +2,7 @@
 #  used for shiny app  #
 ########################
 ## To update app > Run App in RStudio, then Republish
-## using normalized polygon data == divided by population of each polygon
+## using normalized polygon data == divided by # households of each polygon
 
 # ------------------------
 # code to get_census data ------------------------
