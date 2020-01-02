@@ -1,7 +1,7 @@
 ########################
 #  used for shiny app  #
 ########################
-## To update app > Run App in RStudio, then Republish
+## To update app > Run App in RStudio, then Republish ------------------------
 ## using normalized polygon data == divided by # households of each polygon
 
 # ------------------------
@@ -19,11 +19,12 @@ library("shiny") # create interactive shiny app
 library("leaflet") # create leaflet map
 library("rgdal") # needed for spTransform
 
-# set working directory
+# set working directory ------------------------
 #dir <- "/Users/wendyanthony/Documents/R/VicCensusApp"
 #setwd(dir)
 #getwd()
 
+# Cancensus api key ------------------------
 options(cancensus.api_key="CensusMapper_ec4999c4af76e21646476719765e0491")
 #options(cancensus.cache_path = "/Users/wendyanthony/Documents/R/VicCensusApp")
 
@@ -65,7 +66,7 @@ names(vic_cens)
 class(vic_cens)
 summary(vic_cens) # 1 row NA's Esquimalt
 
-# subset with some columns removed
+# subset with some columns removed ------------------------
 # this is the order that summary & data table will use
 vic_cens2 <- subset(vic_cens, select = c(7, 4, 6, 8, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26))
 names(vic_cens2)                    
@@ -74,13 +75,12 @@ summary(vic_cens2)
 class(vic_cens2)
 vic_cens2@data
 
-## Normalize data to compare between polygons
+## Normalize data to compare between polygons ------------------------
 # to compare different polygon data, census data needs to be 'normalized'
 # not to use raw count
 # Household data by dividing by polygon # households > number per households in area
 # mean/median income per household is already normalized
 # https://www.esri.com/news/arcuser/0206/files/normalize2.pdf
-
 
 vic_cens2$Occupied_private_dwelling_Percent <- vic_cens2$Occupied_private_dwelling / vic_cens2$Households
 vic_cens2$Occupied_single_detached_house_Percent <- vic_cens2$Occupied_single_detached_house / vic_cens2$Households
@@ -96,7 +96,7 @@ vic_cens2$Household_size_number_persons_Percent <- vic_cens2$Household_size_numb
 vic_cens2$Avg_household_size_Percent <- vic_cens2$Avg_household_size / vic_cens2$Households
 names(vic_cens2)
 
-# names listed on drop-down list
+# names listed on drop-down list ------------------------
 vic_cens2 <- subset(vic_cens2, select = c(1, 2, 3, 4, 5, 6, 19, 20, 21, 22, 24, 25, 26, 27, 28, 29))
 names(vic_cens2)
 
