@@ -1,11 +1,16 @@
 ########################
 #  used for shiny app  #
+# Victoria census app  #
 ########################
 ## To update app > Run App in RStudio, then Republish ------------------------
 ## using normalized polygon data == divided by # households of each polygon
 
 # ------------------------
 # code to get_census data ------------------------
+# variable names and CMA codes, etc
+# Region selection > CMA > click on region > Overview > regions
+# Victoria: 59933  Vancouver CMA: 59933
+# https://censusmapper.ca/api
 # https://mountainmath.github.io/cancensus/reference/get_census.html
 # code to select tmap variables ------------------------
 # https://rdrr.io/cran/tmap/man/renderTmap.html
@@ -132,6 +137,8 @@ ui <- fluidPage(
   titlePanel("Victoria CMA 2016 Census Household Visualization"),
   # don't use sidebarLayout 
   # https://stackoverflow.com/questions/46372664/error-argument-mainpanel-is-missing-with-no-default
+  
+  
   sidebarPanel(position = "right",
                selectInput("var", "Choose a Variable to Map", vic_cens3_var, selected = "Income")
   ),
@@ -188,7 +195,7 @@ server <- function(input, output, session) {
   output$text <- renderUI({
     str1 <- paste("2016 Census Data from Statistics Canada.")
     str2 <- paste("In order to compare municipal polygon data, household stats have been normalized by dividing each municipality variable by the number of households in each municipality.")
-    str3 <- paste("code source: ")
+    str3 <- tags$a(href="https://github.com/WendyAnthony/Code_Each_Day/blob/master/My_Code/Vic_Census_Shiny/app.R", "Shiny app Code")
     str4 <- paste("Created by Wendy Anthony 2020-01-02")
     HTML(paste(str1, str2, str3, str4, sep = "<br /><br />"))
   })
@@ -199,3 +206,5 @@ server <- function(input, output, session) {
 shinyApp(ui, server)
 
 # ------------------------
+# prints html built from appui
+# print(ui)
